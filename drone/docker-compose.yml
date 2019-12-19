@@ -1,0 +1,63 @@
+# docker-compose官方文档：https://docs.docker.com/compose/
+# Server安装官方文档：https://docs.drone.io/installation/providers/gitlab/
+# Runner安装官方文档：https://docker-runner.docs.drone.io/installation/install_linux/
+
+# 1.创建一个OAuth应用程序（类似开放平台appid）：User Settings->Applications
+# Application: Drone
+# Application ID：27231874exxxxxxxxx0db10abafb
+# Secret：cff47b001c8xxxxxxxx19dc791432
+# Callback URL：http://xxxx.cn/login
+# ------------------------------------------------------------------
+# 2.创建共享密钥，用于drone服务和runner之间通信
+# openssl rand -hex 16：cd50aff1560d3517fb752de5c58cc086
+# ------------------------------------------------------------------
+# 3.设置环境变量（等号两边不能有空格）
+# cat <<EOF >  /etc/profile.d/drone.sh
+# export DRONE_GITLAB_CLIENT_ID=27231874exxxxxxxxx0db10abafb
+# export DRONE_GITLAB_CLIENT_SECRET=cff47b001c8xxxxxxxx19dc791432
+# export DRONE_RPC_SECRET=cd50aff1560d3517fb752de5c58cc086
+# EOF
+# 立即生效：source /etc/profile.d/drone.sh
+# ------------------------------------------------------------------
+# 4.安装drone  
+version: '3'
+services:
+  drone-server:
+    container_name: drone
+    image: drone/drone:1.6.1
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/lib/drone:/data
+    environment:
+      - DRONE_AGENTS_ENABLED=true
+      - DRONE_GITLAB_SERVER=https://gitlab.com
+      - DRONE_GITLAB_CLIENT_ID=${DRONE_GITLAB_CLIENT_ID}  # GitLab oauth客户端ID
+      - DRONE_GITLAB_CLIENT_SECRET=${DRONE_GITLAB_CLIENT_SECRET} # GitLab oauth客户端密钥
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}  # 共享密钥，b60c907872ae270b66c0c81d1cf5ee0f[用于验证到服务器的rpc连接。必须为服务器和代理提供相同的秘密值]
+      - DRONE_SERVER_HOST=xxx.iego.cn  # drone地址[提供您的外部主机名或IP地址。如果使用IP地址，则可以包括端口]
+      - DRONE_SERVER_PROTO=http  # 提供了您的外部协议方案。此值应设置为http或https
+      - DRONE_USER_CREATE=username:hanyren,machine:false,admin:true,token:${DRONE_RPC_SECRET}  # 创建管理员用户（用于设置受信用仓库）
+
+  drone-runner:
+    container_name: runner
+    image: drone/drone-runner-docker:1.1.0
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=192.168.0.200
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}  # 提供用于与您的Drone服务器进行身份验证的共享密钥[必须与您的Drone服务器配置中定义的机密匹配]
+      - DRONE_RUNNER_CAPACITY=2
+# ------------------------------------------------------------------
+# 5.gitlab授权登录到drone页面上之后同步下项目就可以看到项目列表
+# 访问：http://xxx.iego.cn/（http://192.168.0.200），自动跳转到gitlab授权页面
+
+# ---------------------------------------- 错误列表 ----------------------------------------
+# 1.linter: untrusted repositories cannot enable privileged mode
+# 需要创建管理员用户，并设置该项目为受信用仓库

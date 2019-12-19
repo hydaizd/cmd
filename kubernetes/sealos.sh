@@ -7,7 +7,7 @@
 # CentOs版本从7.2升级到7.7后，可以解决很多问题，如d_type不支持，pids不支持等。目前kernel在3.10.0-514以上自动支持overlay2存储驱动了。
 # 查看系统支持哪些subsystem：cat /proc/cgroups，列表中没有出现pids，说明不支持
 # CentOs版本：rpm -q centos-release：centos-release-7-7.1908.0.el7.centos.x86_64
-# CentOs内核版本：uname -r：3.10.0-957.12.2.el7.x86_64
+# CentOs内核版本：uname -r：3.10.0-1062.el7.x86_64
 
 # 检查服务器主机名
 hostname
@@ -21,7 +21,7 @@ timedatectl set-timezone Asia/Shanghai
 yum install -y ntpdate
 ntpdate -u cn.pool.ntp.org 
 
-# master节点CPU必须2C以上，否则会出现错误信息：the number of available CPUs 1 is less than the required 2
+# master节点CPU必须2个以上，否则会出现错误信息：the number of available CPUs 1 is less than the required 2
 # 打开visualbox管理器，修改机器cpu数量即可。
 # ---------------------------------------- 环境准备 end ----------------------------------------
 

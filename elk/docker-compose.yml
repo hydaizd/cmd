@@ -1,0 +1,54 @@
+# 官方镜像：https://hub.docker.com/r/sebp/elk
+# 帮助文档地址：https://elk-docker.readthedocs.io/
+# 虚拟机内存设置的3G
+
+# 1.拷贝配置文件：
+# mkdir -p /etc/logstash
+# mkdir -p /etc/elasticsearch
+# docker run --rm -it --name elkpre --entrypoint=/bin/sh sebp/elk:622
+# docker cp elkpre:/etc/logstash/conf.d /etc/logstash/
+# docker cp elkpre:/etc/elasticsearch/conf.d /etc/elasticsearch/
+# ------------------------------------------------------------------
+# 2.修改配置文件
+# ------------------------------------------------------------------
+# 3.elk安装
+version: '3'
+services:
+  elk:
+    container_name: elk
+    image: sebp/elk:622
+    restart: always
+    ports:
+      - "5044:5044"
+      - "9200:9200"
+      - "5601:5601"
+    volumes:
+      - /etc/logstash/conf.d:/etc/logstash/conf.d
+      - /etc/elasticsearch/elasticsearch.yml:/etc/elasticsearch/elasticsearch.yml
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" #　ES版本在 5.0 以后默认分配的内存是 2G
+      - "MAX_MAP_COUNT=262144" #vm.max_map_count最小值为：262144
+# ------------------------------------------------------------------      
+# 2.访问kibana：http://192.168.0.200:5601/
+# 查看各功能是否正常：http://192.168.0.200:5601/app/timelion
+# http://192.168.0.200:9200/
+# ------------------------------------------------------------------
+
+# ---------------------------------------- 错误列表 ----------------------------------------
+# 1.["warning","elasticsearch","admin"],"pid":201,"message":"Unable to revive connection: http://localhost:9200/"}
+# ------------------------------------------------------------------
+# 2.Timelion: Error: in cell #1: Elasticsearch index not found: _all
+# ------------------------------------------------------------------
+# 3.常见操作（Dev Tools中进行）：
+# -查询索引列表：GET /_cat/indices?v
+# -集群健康检查：GET /_cat/health?v　
+# -按ID查找专辑：GET hyxk_app_album/_search
+# {
+#   "query": {
+#     "term": {
+#       "id": {
+#         "value": "5"
+#       }
+#     }
+#   }
+# }

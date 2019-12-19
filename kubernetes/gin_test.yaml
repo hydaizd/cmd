@@ -1,0 +1,40 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: gin-test  # 名字不能包含下划线
+  namespace: my-project  # 命名空间列表如果没有，则需要先创建
+  labels:
+    app: gin-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gin-test
+  template:
+    metadata:
+      labels:
+        app: gin-test
+    spec:
+      imagePullSecrets:                         
+      - name: registry-key
+      containers:
+      - name: gin-test
+        image: 271357630/gin-test-admin
+        ports:
+        - containerPort: 8020
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gin-test
+  labels:
+    app: gin-test
+spec:
+  type: NodePort
+  selector:
+    app: gin-test
+  ports:
+  - protocol: TCP
+    port: 8020  # service暴露在cluster ip上的端口，<cluster ip>:port 是提供给集群内部客户访问service的入口
+    targetPort: 8020  # pod上的端口，与制作容器时暴露的端口一致
+    nodePort: 30001  # kubernetes提供给集群外部客户访问service入口的一种方式，需要配置type=NodePort，nodePort取值范围：
