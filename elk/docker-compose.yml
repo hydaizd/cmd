@@ -7,9 +7,13 @@
 # mkdir -p /etc/elasticsearch
 # docker run --rm -it --name elkpre --entrypoint=/bin/sh sebp/elk:622
 # docker cp elkpre:/etc/logstash/conf.d /etc/logstash/
-# docker cp elkpre:/etc/elasticsearch/conf.d /etc/elasticsearch/
+# docker cp elkpre:/etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/
 # ------------------------------------------------------------------
 # 2.修改配置文件
+# mysql数据同步配置
+# elasticsearch.yml相关配置：
+# - path.data
+# - path.log
 # ------------------------------------------------------------------
 # 3.elk安装
 version: '3'
@@ -39,7 +43,11 @@ services:
 # ------------------------------------------------------------------
 # 2.Timelion: Error: in cell #1: Elasticsearch index not found: _all
 # ------------------------------------------------------------------
-# 3.常见操作（Dev Tools中进行）：
+# 3.在docker中运行elasticsearch时go程序无法连接到节点，提示：no active connection found: no Elasticsearch node available
+# 自动转换成docker中的ip导致无法连接服务，将sniff设置为false后，便不会自动转换地址
+# client, err := elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(host)) // host = http://192.168.0.200:9200
+# ------------------------------------------------------------------
+# 4.常见操作（Dev Tools中进行）：
 # -查询索引列表：GET /_cat/indices?v
 # -集群健康检查：GET /_cat/health?v　
 # -按ID查找专辑：GET hyxk_app_album/_search
