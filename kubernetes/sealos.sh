@@ -1,5 +1,6 @@
 #!/bin/bash
 # :set fileformat=unix
+# https://github.com/rancher/rke
 
 # ---------------------------------------- 环境准备 start ----------------------------------------
 # 不建议使用vagrant安装虚拟机，存在双网卡问题，会影响ipvs

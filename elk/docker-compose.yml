@@ -1,5 +1,6 @@
 # 官方镜像：https://hub.docker.com/r/sebp/elk
 # 帮助文档地址：https://elk-docker.readthedocs.io/
+# golang插件：gopkg.in/olivere/elastic.v6
 # 虚拟机内存设置的3G
 
 # 1.拷贝配置文件：
@@ -10,10 +11,12 @@
 # docker cp elkpre:/etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/
 # ------------------------------------------------------------------
 # 2.修改配置文件
-# mysql数据同步配置
+# mysql数据同步配置文件conf.d文件夹
+# - 02-beats-input.conf，去掉beats {}，添加jdbc {}
+# - 30-output.conf，修改elasticsearch {}
 # elasticsearch.yml相关配置：
-# - path.data
-# - path.log
+# - path.data //默认是：/var/lib/elasticsearch，可以设置多个存储路径，用逗号隔开
+# - path.log  //默认是：/var/log/elasticsearch
 # ------------------------------------------------------------------
 # 3.elk安装
 version: '3'
@@ -22,6 +25,7 @@ services:
     container_name: elk
     image: sebp/elk:622
     restart: always
+    privileged: true
     ports:
       - "5044:5044"
       - "9200:9200"
@@ -29,9 +33,10 @@ services:
     volumes:
       - /etc/logstash/conf.d:/etc/logstash/conf.d
       - /etc/elasticsearch/elasticsearch.yml:/etc/elasticsearch/elasticsearch.yml
+      - /var/lib/elasticsearch:/var/lib/elasticsearch
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m" #　ES版本在 5.0 以后默认分配的内存是 2G
-      - "MAX_MAP_COUNT=262144" #vm.max_map_count最小值为：262144
+      - "MAX_MAP_COUNT=262144" #vm.max_map_count最小值为：262144，如果提示没有权限修改，加上privileged: true
 # ------------------------------------------------------------------      
 # 2.访问kibana：http://192.168.0.200:5601/
 # 查看各功能是否正常：http://192.168.0.200:5601/app/timelion
@@ -40,6 +45,7 @@ services:
 
 # ---------------------------------------- 错误列表 ----------------------------------------
 # 1.["warning","elasticsearch","admin"],"pid":201,"message":"Unable to revive connection: http://localhost:9200/"}
+# 重新安装问题解决
 # ------------------------------------------------------------------
 # 2.Timelion: Error: in cell #1: Elasticsearch index not found: _all
 # ------------------------------------------------------------------

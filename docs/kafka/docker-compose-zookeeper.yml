@@ -1,0 +1,68 @@
+# ZooKeeper为大型分布式系统提供开源分布式配置服务，同步服务和命名注册表
+# zookeeper官方镜像：https://hub.docker.com/_/zookeeper
+
+# 1.镜像支持的环境变量及默认值：
+# ZOO_DATA_DIR = /data
+# ZOO_DATA_LOG_DIR = /datalog
+# ZOO_LOG_DIR = /logs
+# ZOO_CONF_DIR = /conf
+# ZOO_TICK_TIME = 2000
+# ZOO_INIT_LIMIT = 5
+# ZOO_SYNC_LIMIT = 2
+# ZOO_AUTOPURGE_SNAPRETAINCOUNT = 3
+# ZOO_AUTOPURGE_PURGEINTERVAL = 0
+# ZOO_MAX_CLIENT_CNXNS = 60
+# ZOO_STANDALONE_ENABLED = true
+# ZOO_ADMINSERVER_ENABLED = true
+# ZOO_SERVERS
+# ZOO_4LW_COMMANDS_WHITELIST =
+# ZOO_MY_ID
+# ------------------------------------------------------------------
+
+# 2.修改配置文件
+# 配置文件中的配置项通过环境变量可改变
+# ------------------------------------------------------------------
+
+# 3.zookeeper集群安装
+version: '3'
+services:
+  zoo1:
+    image: zookeeper:3.5.6
+    container_name: zoo1
+    restart: always
+    hostname: zoo1  # 设置容器的hostname，并在/etc/hosts文件中，会有对应的ip映射到该hostname，如：172.22.0.2 zoo1
+    ports:
+      - 2888:2888
+      - 3888:3888
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181 server.2=192.168.0.202:2888:3888;2181
+  zoo2:
+    image: zookeeper:3.5.6
+    container_name: zoo2
+    restart: always
+    hostname: zoo2 
+    ports:
+      - 2888:2888
+      - 3888:3888
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=192.168.0.200:2888:3888;2181 server.2=0.0.0.0:2888:3888;2181
+# ------------------------------------------------------------------
+
+# 4.查看集群状态
+# (1)在机器192.168.0.200上执行：
+# $ docker exec -it zoo1 bash ./bin/zkServer.sh status
+# ZooKeeper JMX enabled by default
+# Using config: /conf/zoo.cfg
+# Client port found: 2181. Client address: localhost.
+# Mode: follower
+# (2)在机器192.168.0.202上执行：
+# $ docker exec -it zoo2 bash ./bin/zkServer.sh status
+# ZooKeeper JMX enabled by default
+# Using config: /conf/zoo.cfg
+# Client port found: 2181. Client address: localhost.
+# Mode: leader
+# ------------------------------------------------------------------

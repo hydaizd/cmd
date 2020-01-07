@@ -15,10 +15,12 @@ $ ./get_helm.sh
 # 2.使用helm方式安装harbor到k8s集群中
 helm repo add harbor https://helm.goharbor.io
 
+# 创建harbor-ops命名空间
+kubectl create namespace harbor-ops
 # 查看当前的context
 kubectl config current-context
 # 设置 context 指定对应的 namespace ，不指定使用的是 default
-kubectl config set-context <current-context> --namespace harbos-ops
+kubectl config set-context <current-context> --namespace harbor-ops
 
 # 为了简化测试操作，我关闭了数据卷的挂载并使用的是 NodePort 方式进行访问。
 # 参数说明：
@@ -26,12 +28,15 @@ kubectl config set-context <current-context> --namespace harbos-ops
 # expose.type=nodePort 使用 NodePort 访问
 # expose.tls.enabled=false 关闭tls
 # externalURL=http://192.168.0.200:30002 设置登录 harbor 的外部链接
-helm -n harbor-ops install harbor harbor/harbor --set persistence.enabled=false --set expose.type=nodePort --set expose.tls.enabled=false --set externalURL=http://192.168.0.200:30002
+helm -n harbor-ops install harbor harbor/harbor \
+--set persistence.enabled=false \
+--set expose.type=nodePort \
+--set expose.tls.enabled=false \
+--set externalURL=http://192.168.0.200:30002
 
 # 登录管理后台
-# http://192.168.10.196:30002
+# http://192.168.0.200:30002
 # 默认账号密码是 admin/Harbor12345
-
 
 # 删除
 helm uninstall harbor harbor
