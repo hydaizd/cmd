@@ -1,0 +1,38 @@
+# kafka-manager镜像：https://hub.docker.com/r/sheepkiller/kafka-manager
+
+# 1.镜像支持的环境变量及默认值：
+# KAFKA_VERSION = 2.4.0
+# KAFKA_ZOOKEEPER_CONNECT = 
+# KAFKA_PORT =
+# KAFKA_ADVERTISED_PORT = 
+# KAFKA_LISTENERS =
+# KAFKA_ADVERTISED_LISTENERS =
+# KAFKA_BROKER_ID =
+# BROKER_ID_COMMAND =
+# KAFKA_LOG_DIRS = /kafka/kafka-logs-$HOSTNAME
+# KAFKA_HEAP_OPTS = 
+# ------------------------------------------------------------------
+
+# 2.镜像目录结构及配置文件
+# (1)入口文件：
+# $ find / -name "start-kafka.sh"
+# /usr/bin/start-kafka.sh
+# (2)kafka目录：/opt/kafka
+# 配置文件中的配置项通过环境变量可改变
+# ------------------------------------------------------------------
+
+# 3.kafka-manager安装
+version: '3'
+services:
+  kafka-manager:
+    image: wurstmeister/kafka:2.12-2.4.0
+    container_name: kafka1
+    restart: always
+    network_mode: host
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.0.200 # 配置成docker host ip
+      KAFKA_ADVERTISED_PORT: 9092
+      HOST_IP: 192.168.0.200
+      KAFKA_ZOOKEEPER_CONNECT: 192.168.0.200:2181,192.168.0.202:2181
+      KAFKA_BROKER_ID: 0
+      KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
