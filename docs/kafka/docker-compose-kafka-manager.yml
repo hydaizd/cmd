@@ -25,14 +25,13 @@
 version: '3'
 services:
   kafka-manager:
-    image: wurstmeister/kafka:2.12-2.4.0
-    container_name: kafka1
+    image: sheepkiller/kafka-manager
+    container_name: kafka-manager
     restart: always
-    network_mode: host
+	ports:
+	  - "9000:9000"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 192.168.0.200 # 配置成docker host ip
-      KAFKA_ADVERTISED_PORT: 9092
-      HOST_IP: 192.168.0.200
-      KAFKA_ZOOKEEPER_CONNECT: 192.168.0.200:2181,192.168.0.202:2181
-      KAFKA_BROKER_ID: 0
-      KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+      ZK_HOSTS: zoo1:2181,zoo2:2182
+      APPLICATION_SECRET: letmein
+      KM_ARGS: -Djava.net.preferIPv4Stack=true
+    

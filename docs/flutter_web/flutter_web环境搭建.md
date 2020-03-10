@@ -1,4 +1,4 @@
-1.安装vs code和flutter插件
+1.安装vs code和flutter插件(Flutter v3.0以上扩展包)
 ```
 (1)下载并且安装vs code：https://code.visualstudio.com/Download
 (2)在vs中安装flutter插件（安装完flutter插件后dart插件会自动安装），点击左边菜单栏的Extensions按钮->搜索flutter
