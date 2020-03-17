@@ -23,9 +23,9 @@ swapoff -a
 sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
 # 关闭selinux
-# 临时关闭
-setenforce 0
-# 永久关闭
+# 临时关闭，不用重启机器
+setenforce 0 #设置SELinux 成为permissive模式，##setenforce 1 设置SELinux 成为enforcing模式
+# 永久关闭，需要重启机器
 sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
 
 # 配置转发相关参数
